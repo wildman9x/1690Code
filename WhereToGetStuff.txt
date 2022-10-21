@@ -1,0 +1,3 @@
+https://randomnerdtutorials.com/esp32-esp8266-mysql-database-php/
+https://www.prateeks.in/2021/01/iot-based-smart-pulse-oximeter-with.html
+https://how2electronics.com/esp32-max30100-pulse-oximeter-blynk/
