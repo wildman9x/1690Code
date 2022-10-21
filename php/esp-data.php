@@ -27,7 +27,17 @@ td {
 border: 0.3em solid black;
 }
 
+table {
+  border: 0.3em solid black;
+
+}
+
 </style>
+
+<script>
+  // create function deleteAll() to delete all data from the database
+  // use sql command DELETE * FROM SensorData
+</script>
 </head>  
 <body>
 <?php
@@ -61,7 +71,8 @@ if ($conn->connect_error) {
 $sql = "SELECT id, sensor, location, pulse, spo2, studentStatus, reading_time FROM SensorData ORDER BY id DESC";
 
 // create a title for the table
-echo "<div class='container'>
+// create a button to delete all the data in the table using php
+echo "<div class='container' >
 <h1>Students' health status</h1>
 </div>";
 
