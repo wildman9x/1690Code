@@ -15,9 +15,9 @@
 $servername = "localhost";
 
 // REPLACE with your Database name
-$dbname = "health_monitor";
+$dbname = "id19744016_health_monitor";
 // REPLACE with Database user
-$username = "root";
+$username = "id19744016_root";
 // REPLACE with Database user password
 $password = "PxTe1}me)7B))0KA";
 
