@@ -30,6 +30,8 @@ const char* serverName = "http://healthmonitor1690.000webhostapp.com/post-esp-da
 // If you change the apiKeyValue value, the PHP file /post-esp-data.php also needs to have the same key 
 String apiKeyValue = "tPmAT5Ab3j7F9";
 
+String status = "";
+
 String sensorName = "MAX30100";
 String sensorLocation = "Class";
 
@@ -145,6 +147,14 @@ void loop()
     lcd.setCursor(14, 1);
     lcd.print("%");
 
+    if (pox.getHeartRate() >= 160 || pox.getHeartRate() <= 50 || pox.getSpO2() <= 70) {
+      status = "Bad";
+    } else if (pox.getHeartRate() >= 130 || pox.getHeartRate() <= 60 || pox.getSpO2() <= 85) {
+      status = "Warning";
+    } else {
+      status = "Good";
+    }
+
     Blynk.virtualWrite(V0, pox.getHeartRate() );
     Blynk.virtualWrite(V1, pox.getSpO2());
     Blynk.virtualWrite(V2, timeClient.getHours());
@@ -170,8 +180,8 @@ void loop()
     
     // Prepare your HTTP POST request data
     String httpRequestData = "api_key=" + apiKeyValue + "&sensor=" + sensorName
-                          + "&location=" + sensorLocation + "&value1=" + String(pox.getHeartRate())
-                          + "&value2=" + String(pox.getSpO2()) +  "";
+                          + "&location=" + sensorLocation + "&pulse=" + String(pox.getHeartRate())
+                          + "&spo2=" + String(pox.getSpO2()) + "&studentStatus=" + status + "";
     Serial.print("httpRequestData: ");
     Serial.println(httpRequestData);
     
