@@ -15,12 +15,14 @@
 <style>
 body {
 font-family: 'Space Grotesk', sans-serif;
+/* off white background */
+background-color: #f5f5f5;
 }
 .container {
 margin-top: 5em;
 margin-bottom: 5em;
 
-width: 50%;
+width: 60%;
 }
 /* set border for each table cell */
 td {
