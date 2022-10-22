@@ -113,7 +113,7 @@ if ($result = $conn->query($sql)) {
       // if student status is Good, highlight the row in green
       // if student status is Bad, highlight the row in red
       // if student status is Warning, highlight the row in yellow
-      if ($row_studentStatus == "Good") {
+      if ($row_studentStatus == "Good") { 
         echo '<tr bgcolor="#BCE29E">';
       } else if ($row_studentStatus == "Bad") {
         echo '<tr bgcolor="#FF8787">';
