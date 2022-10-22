@@ -29,7 +29,8 @@ border: 0.3em solid black;
 
 table {
   border: 0.3em solid black;
-
+/* drop shadow right and bottom */
+  box-shadow: 0.3em 0.3em 0.3em solid black;
 }
 
 </style>
@@ -38,9 +39,14 @@ table {
   // create function deleteAll() to delete all data from the database
   // use sql command DELETE * FROM SensorData
 </script>
+<!-- refresh the site every 4 second using php -->
+<meta http-equiv="refresh" content="4">
+
 </head>  
 <body>
 <?php
+
+
 /*
   Rui Santos
   Complete project details at https://RandomNerdTutorials.com/esp32-esp8266-mysql-database-php/
