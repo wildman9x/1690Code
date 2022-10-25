@@ -2,6 +2,12 @@
 #define BLYNK_DEVICE_NAME "Health monitor"
 #define BLYNK_AUTH_TOKEN "fM2xLkOtBN-h8GQ4AK3x-ogmplWHTFYd"
 
+constexpr uint8_t RST_PIN = D3;     // Configurable, see typical pin layout above
+constexpr uint8_t SS_PIN = D4;     // Configurable, see typical pin layout above
+
+#include <SPI.h>
+#include <MFRC522.h>
+
 #include <time.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
@@ -23,8 +29,14 @@ char auth[] = "fM2xLkOtBN-h8GQ4AK3x-ogmplWHTFYd";             // You should get 
 char ssid[] = "A";                                     // Your WiFi credentials.
 char pass[] = "3115999Wild";
 
+MFRC522 rfid(SS_PIN, RST_PIN); // Instance of the class
+MFRC522::MIFARE_Key key;
+
+String tag;
+
 // REPLACE with your Domain name and URL path or IP address with path
 const char* serverName = "http://healthmonitor1690.000webhostapp.com/post-esp-data.php";
+
 
 // Keep this API Key value to be compatible with the PHP code provided in the project page. 
 // If you change the apiKeyValue value, the PHP file /post-esp-data.php also needs to have the same key 
@@ -34,6 +46,10 @@ String status = "";
 
 String sensorName = "MAX30100";
 String sensorLocation = "Class";
+
+// declare variable for average reading of heart rate and spo2
+int avg_pulse = 0;
+int avg_spo2 = 0;
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
@@ -71,7 +87,8 @@ void setup()
   Serial.begin(115200);
   Blynk.begin(auth, ssid, pass);
   Serial.print("Initializing pulse oximeter..");
-  
+  SPI.begin(); // Init SPI bus
+  rfid.PCD_Init(); // Init MFRC522
 
 
   // Initialize the PulseOximeter instance
@@ -111,6 +128,14 @@ void setup()
 
 void loop()
 {
+  if ( ! rfid.PICC_IsNewCardPresent()){
+    // write to LCD "Please scan your card"
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Please scan your card");
+
+    return;
+    }
   
   
   timeClient.update();
@@ -121,7 +146,34 @@ void loop()
   Blynk.run();
   // Make sure to call update as fast as possible
   pox.update();
-  
+  if (rfid.PICC_ReadCardSerial()) {
+    for (byte i = 0; i < 4; i++) {
+      tag += rfid.uid.uidByte[i];
+    }
+    Serial.println(tag);
+    
+    rfid.PICC_HaltA();
+    rfid.PCD_StopCrypto1();
+    // display on LCD "Welcome, tag number, please put your finger on the sensor"
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Welcome, student");
+    lcd.setCursor(0, 1);
+    lcd.print(tag);
+    delay(3000);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Please put finger");
+    lcd.setCursor(0, 1);
+    lcd.print("on the sensor");
+    delay(3000);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    
+  }
+
+  // loop 10 times
+  // for (int i = 0; i < 10; i++ ) 
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
 
 
@@ -168,6 +220,10 @@ void loop()
 
     tsLastReport = millis();
 
+  
+  //Send an HTTP POST request every 30 seconds
+  //delay(5000);  
+  }
   if(WiFi.status()== WL_CONNECTED){
     WiFiClient client;
     HTTPClient http;
@@ -214,10 +270,7 @@ void loop()
   else {
     Serial.println("WiFi Disconnected");
   }
-  //Send an HTTP POST request every 30 seconds
-  //delay(5000);  
-  }
-
+tag = ""; // clear the tag variable
   
 }
 
