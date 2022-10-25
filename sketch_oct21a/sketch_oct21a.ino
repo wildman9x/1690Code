@@ -48,8 +48,13 @@ String sensorName = "MAX30100";
 String sensorLocation = "Class";
 
 // declare variable for average reading of heart rate and spo2
-int avg_pulse = 0;
-int avg_spo2 = 0;
+float avg_pulse = 0;
+float avg_spo2 = 0;
+
+// delacre array variable of 10 element to store the value of heart rate and spo2
+float pulse_data[10];
+float spo2_data[10];
+
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
@@ -144,8 +149,7 @@ void loop()
 
   timer.run(); // Initiates SimpleTimer
   Blynk.run();
-  // Make sure to call update as fast as possible
-  pox.update();
+  
   if (rfid.PICC_ReadCardSerial()) {
     for (byte i = 0; i < 4; i++) {
       tag += rfid.uid.uidByte[i];
@@ -171,21 +175,24 @@ void loop()
     lcd.setCursor(0, 0);
     
   }
-
+  // Make sure to call update as fast as possible
+  pox.update();
   // loop 10 times
-  // for (int i = 0; i < 10; i++ ) 
-  if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
-
+  for (int i = 0; i < 10; i++ ) {
+  // if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
+    pox.update();
 
     // to computer serial monitor
     Serial.print("BPM: ");
     Serial.print(pox.getHeartRate());
     //blue.println("\n");
+    pulse_data[i] = pox.getHeartRate();
 
     Serial.print("    SpO2: ");
     Serial.print(pox.getSpO2());
     Serial.print("%");
     Serial.println("\n");
+    spo2_data[i] = pox.getSpO2();
 
     lcd.clear();
     lcd.setCursor(0, 0);
@@ -217,16 +224,19 @@ void loop()
     Blynk.virtualWrite(V5, ptm->tm_mon+1);
     Blynk.virtualWrite(V6, ptm->tm_year+1900);
     Blynk.virtualWrite(V7, timeClient.getSeconds());
-
+    
     tsLastReport = millis();
 
-  
+    delay(1000);
   //Send an HTTP POST request every 30 seconds
   //delay(5000);  
+    // }
   }
   if(WiFi.status()== WL_CONNECTED){
     WiFiClient client;
     HTTPClient http;
+    avg_pulse = average(pulse_data, 10);
+    avg_spo2 = average(spo2_data, 10);
     
     // Your Domain name with URL path or IP address with path
     http.begin(client, serverName);
@@ -236,8 +246,8 @@ void loop()
     
     // Prepare your HTTP POST request data
     String httpRequestData = "api_key=" + apiKeyValue + "&sensor=" + sensorName
-                          + "&location=" + sensorLocation + "&pulse=" + String(pox.getHeartRate())
-                          + "&spo2=" + String(pox.getSpO2()) + "&studentStatus=" + status + "";
+                          + "&location=" + sensorLocation + "&pulse=" + String(avg_pulse)
+                          + "&spo2=" + String(avg_spo2) + "&studentStatus=" + status + "";
     Serial.print("httpRequestData: ");
     Serial.println(httpRequestData);
     
@@ -278,3 +288,13 @@ void getSendData()
 {
   ;
 }
+
+// calculate average of an array and return the average
+float average(float array[], int length) {
+  float sum = 0;
+  for (int i = 0; i < length; i++) {
+    sum += array[i];
+  }
+  return sum / length;
+}
+
