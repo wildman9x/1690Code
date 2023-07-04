@@ -27,7 +27,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 char auth[] = "fM2xLkOtBN-h8GQ4AK3x-ogmplWHTFYd"; // You should get Auth Token in the Blynk App.
 char ssid[] = "A";                                // Your WiFi credentials.
-char pass[] = "3115999Wild";
+char pass[] = "3fewgwegweg";
 
 MFRC522 rfid(SS_PIN, RST_PIN); // Instance of the class
 MFRC522::MIFARE_Key key;
